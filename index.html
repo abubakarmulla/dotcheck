@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dotcheck: .com availability and registry record</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Hanken+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ground: #F2F4F8;
+  --surface: #FFFFFF;
+  --ink: #131A2B;
+  --muted: #5A657C;
+  --line: #D9DFE9;
+  --accent: #2B4BFF;
+  --accent-ink: #FFFFFF;
+  --free: #0B8A5F;
+  --free-wash: #E3F5EE;
+  --taken: #B4530A;
+  --taken-wash: #FBEEDD;
+  --danger: #B42318;
+  --display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --body: "Hanken Grotesk", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ground: #0D111D;
+    --surface: #151B2C;
+    --ink: #E8ECF6;
+    --muted: #97A1B8;
+    --line: #283049;
+    --accent: #8094FF;
+    --accent-ink: #0D111D;
+    --free: #3DD6A0;
+    --free-wash: #10302A;
+    --taken: #F5B453;
+    --taken-wash: #33260F;
+    --danger: #FF8A7A;
+    color-scheme: dark;
+  }
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 1.0625rem;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  padding: env(safe-area-inset-top, 0px) 0 env(safe-area-inset-bottom, 0px);
+}
+.page {
+  max-width: 54rem;
+  margin: 0 auto;
+  padding: 1.5rem 1.5rem 4rem;
+}
+a { color: var(--accent); text-underline-offset: 0.18em; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+[hidden] { display: none !important; }
+
+/* Masthead */
+.mast {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 4.5rem;
+}
+.mark {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 1.25rem;
+  letter-spacing: -0.02em;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+.mark::before {
+  content: "";
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 50%;
+  background: var(--accent);
+}
+.mast-note { color: var(--muted); font-size: 0.9375rem; margin: 0; }
+
+/* Search */
+h1 {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: clamp(2.4rem, 7.2vw, 4.4rem);
+  line-height: 0.98;
+  letter-spacing: -0.035em;
+  margin: 0 0 1.25rem;
+  max-width: 14ch;
+}
+.lede { color: var(--muted); max-width: 34rem; margin: 0 0 2.25rem; }
+.search {
+  display: flex;
+  gap: 0.5rem;
+  background: var(--surface);
+  border: 2px solid var(--ink);
+  border-radius: 1rem;
+  padding: 0.5rem;
+}
+.search:focus-within { border-color: var(--accent); }
+.search input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: clamp(1.25rem, 3.4vw, 1.75rem);
+  letter-spacing: -0.02em;
+  padding: 0.65rem 0.85rem;
+}
+.search input::placeholder { color: var(--muted); opacity: 0.6; font-weight: 400; }
+.search input:focus { outline: none; }
+.btn {
+  font: inherit;
+  font-weight: 600;
+  border: 0;
+  border-radius: 0.65rem;
+  padding: 0.8rem 1.4rem;
+  background: var(--accent);
+  color: var(--accent-ink);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.btn:hover { filter: brightness(1.08); }
+.btn[disabled] { opacity: 0.6; cursor: progress; }
+.btn-quiet {
+  background: transparent;
+  color: var(--ink);
+  border: 1.5px solid var(--line);
+  padding: 0.55rem 1rem;
+  font-size: 0.9375rem;
+}
+.btn-quiet:hover { border-color: var(--ink); filter: none; }
+.field-msg { min-height: 1.6rem; margin: 0.6rem 0.25rem 0; font-size: 0.9375rem; color: var(--danger); }
+
+.recent { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin-top: 0.75rem; font-size: 0.9375rem; color: var(--muted); }
+.recent button {
+  font: inherit;
+  color: var(--ink);
+  background: transparent;
+  border: 1.5px solid var(--line);
+  border-radius: 99px;
+  padding: 0.2rem 0.75rem 0.2rem 0.6rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.recent button:hover { border-color: var(--ink); }
+.dot { width: 0.55rem; height: 0.55rem; border-radius: 50%; background: var(--muted); flex: none; }
+.dot.free { background: var(--free); }
+.dot.taken { background: var(--taken); }
+
+/* Result */
+.result { margin-top: 3.5rem; }
+.checking { color: var(--muted); display: flex; align-items: center; gap: 0.6rem; }
+.checking .dot { background: var(--accent); animation: pulse 1s ease-in-out infinite; }
+@keyframes pulse { 50% { transform: scale(0.5); opacity: 0.4; } }
+
+.verdict-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  padding: 0.3rem 0.85rem 0.3rem 0.7rem;
+  border-radius: 99px;
+  margin-bottom: 1rem;
+}
+.verdict-tag.free { background: var(--free-wash); color: var(--free); }
+.verdict-tag.taken { background: var(--taken-wash); color: var(--taken); }
+.verdict-name {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: clamp(2rem, 8vw, 4.75rem);
+  line-height: 1;
+  letter-spacing: -0.04em;
+  margin: 0 0 1rem;
+  overflow-wrap: anywhere;
+}
+.verdict-text { color: var(--muted); max-width: 36rem; margin: 0 0 1.25rem; }
+.verdict-text strong { color: var(--ink); font-weight: 600; }
+.actions { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+.sample-flag {
+  border: 1.5px dashed var(--taken);
+  color: var(--taken);
+  border-radius: 0.65rem;
+  padding: 0.6rem 0.9rem;
+  font-size: 0.9375rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Lifecycle */
+.life { margin: 3rem 0 1rem; }
+.life-bar {
+  --p: 0;
+  --t: 0;
+  position: relative;
+  height: 0.5rem;
+  border-radius: 99px;
+  background: var(--line);
+  margin-top: 2.25rem;
+}
+.life-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: calc(var(--p) * 1%);
+  border-radius: 99px;
+  background: var(--ink);
+  transition: width 900ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.life-tick {
+  position: absolute;
+  top: -0.3rem;
+  bottom: -0.3rem;
+  left: calc(var(--t) * 1%);
+  width: 2px;
+  background: var(--ground);
+}
+.life-now {
+  position: absolute;
+  top: 50%;
+  left: calc(var(--p) * 1%);
+  width: 1.1rem;
+  height: 1.1rem;
+  margin: -0.55rem 0 0 -0.55rem;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 3px solid var(--ground);
+  transition: left 900ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.life-now-label {
+  position: absolute;
+  bottom: calc(100% + 0.65rem);
+  left: calc(var(--p) * 1%);
+  transform: translateX(calc(var(--p) * -1%));
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--accent);
+  white-space: nowrap;
+  transition: left 900ms cubic-bezier(0.2, 0.7, 0.2, 1), transform 900ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.life-points {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin: 1.25rem 0 0;
+}
+.life-points div:nth-child(2) { text-align: center; }
+.life-points div:nth-child(3) { text-align: right; }
+.life-points dt { color: var(--muted); font-size: 0.9375rem; }
+.life-points dd { margin: 0; }
+.life-points .date { font-family: var(--display); font-weight: 600; font-size: clamp(1.05rem, 2.6vw, 1.4rem); letter-spacing: -0.02em; }
+.life-points .rel { color: var(--muted); font-size: 0.9375rem; }
+.life-points .rel.warn { color: var(--taken); font-weight: 600; }
+
+/* Record rows */
+.record { margin-top: 2.5rem; border-bottom: 1px solid var(--line); }
+.row {
+  display: grid;
+  grid-template-columns: 11rem 1fr;
+  gap: 0.5rem 2rem;
+  padding: 1.5rem 0;
+  border-top: 1px solid var(--line);
+}
+.row h3 { font: 600 1rem/1.55 var(--body); margin: 0; }
+.row-body > :first-child { margin-top: 0; }
+.row-body > :last-child { margin-bottom: 0; }
+.row-body p { margin: 0 0 0.35rem; }
+.big { font-family: var(--display); font-weight: 600; font-size: 1.3rem; letter-spacing: -0.02em; line-height: 1.25; }
+.soft { color: var(--muted); }
+.plain-list { list-style: none; margin: 0; padding: 0; }
+.plain-list li + li { margin-top: 0.6rem; }
+.ns li { font-family: var(--mono); font-size: 0.9375rem; }
+.ns li + li { margin-top: 0.25rem; }
+.status-name { font-weight: 600; display: block; }
+.status-name::first-letter { text-transform: uppercase; }
+.digest { font-family: var(--mono); font-size: 0.8125rem; overflow-wrap: anywhere; color: var(--muted); }
+.kv { display: grid; grid-template-columns: auto 1fr; gap: 0.2rem 1.25rem; margin: 0; }
+.kv dt { color: var(--muted); }
+.kv dd { margin: 0; overflow-wrap: anywhere; }
+
+details.raw { margin-top: 1.5rem; }
+details.raw summary { cursor: pointer; font-weight: 600; padding: 0.4rem 0; width: fit-content; }
+details.raw pre {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 0.75rem;
+  padding: 1rem;
+  overflow-x: auto;
+  font: 0.8125rem/1.5 var(--mono);
+  max-height: 28rem;
+}
+
+.problem h2 { font-family: var(--display); font-weight: 700; font-size: 1.75rem; letter-spacing: -0.03em; line-height: 1.1; margin: 0 0 0.75rem; }
+.problem p { color: var(--muted); max-width: 36rem; margin: 0 0 1.25rem; }
+
+footer { margin-top: 5rem; color: var(--muted); font-size: 0.9375rem; max-width: 38rem; }
+
+@media (max-width: 40rem) {
+  .mast { padding-bottom: 3rem; }
+  .mast-note { display: none; }
+  .search { flex-direction: column; }
+  .row { grid-template-columns: 1fr; }
+  .life-points { grid-template-columns: 1fr; gap: 0.9rem; }
+  .life-points div:nth-child(n) { text-align: left; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .life-fill, .life-now, .life-now-label { transition: none; }
+  .checking .dot { animation: none; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+  <header class="mast">
+    <span class="mark">Dotcheck</span>
+    <p class="mast-note">Live from the .com and .net registry</p>
+  </header>
+
+  <main>
+    <h1>Is that name still free?</h1>
+    <p class="lede">Type a .com or .net name. The answer comes straight from Verisign, the registry that runs both, along with the registration record if someone already owns it.</p>
+
+    <form id="form" novalidate>
+      <div class="search">
+        <input id="q" name="domain" type="text" inputmode="url" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="yourname.com" aria-label="Domain name" aria-describedby="msg">
+        <button class="btn" id="go" type="submit">Check name</button>
+      </div>
+      <p class="field-msg" id="msg" role="alert"></p>
+    </form>
+    <div class="recent" id="recent" hidden></div>
+
+    <section class="result" id="result" aria-live="polite"></section>
+  </main>
+
+  <footer>
+    Dotcheck reads Verisign’s public RDAP service and keeps nothing. The registry record never includes the owner’s contact details; those sit with the registrar.
+  </footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var ENDPOINT = { com: "https://rdap.verisign.com/com/v1/domain/", net: "https://rdap.verisign.com/net/v1/domain/" };
+
+  var STATUS = {
+    "active": "Working normally.",
+    "inactive": "No nameservers are attached, so the name does not resolve.",
+    "client transfer prohibited": "The registrar has locked the name against transfers. This is the usual anti-hijacking setting.",
+    "client delete prohibited": "The registrar has locked the name against deletion.",
+    "client update prohibited": "The registrar has locked the record against changes.",
+    "client renew prohibited": "The registrar has blocked renewal.",
+    "client hold": "The registrar has suspended the name. It does not resolve.",
+    "server transfer prohibited": "The registry has locked the name against transfers.",
+    "server delete prohibited": "The registry has locked the name against deletion.",
+    "server update prohibited": "The registry has locked the record against changes.",
+    "server renew prohibited": "The registry has blocked renewal.",
+    "server hold": "The registry has suspended the name. It does not resolve.",
+    "add period": "Registered within the last few days. The registrar can still cancel it for a refund.",
+    "auto renew period": "Renewed automatically within the last 45 days. The registrar can still reverse the renewal.",
+    "renew period": "Renewed within the last few days. The registrar can still reverse the renewal.",
+    "transfer period": "Moved to a new registrar within the last few days.",
+    "redemption period": "Deleted by the registrar. The previous owner has about 30 days to restore it before it is released.",
+    "pending restore": "The previous owner has asked to restore the name after deletion.",
+    "pending delete": "Scheduled for release. It should become available to register within about five days.",
+    "pending transfer": "A transfer to another registrar is in progress.",
+    "pending update": "A change to the record is in progress.",
+    "pending create": "The registration is still being processed."
+  };
+  var DS_ALG = { 5: "RSA/SHA-1", 7: "RSASHA1-NSEC3-SHA1", 8: "RSA/SHA-256", 10: "RSA/SHA-512", 13: "ECDSA P-256", 14: "ECDSA P-384", 15: "Ed25519", 16: "Ed448" };
+  var DS_DIGEST = { 1: "SHA-1", 2: "SHA-256", 4: "SHA-384" };
+
+  var SAMPLE = {
+    objectClassName: "domain",
+    handle: "0000000000_DOMAIN_COM-VRSN",
+    ldhName: "SAMPLE-RECORD.COM",
+    links: [{ rel: "related", href: "https://rdap.example-registrar.test/domain/SAMPLE-RECORD.COM" }],
+    status: ["client transfer prohibited", "client delete prohibited"],
+    entities: [{
+      objectClassName: "entity", handle: "9999", roles: ["registrar"],
+      publicIds: [{ type: "IANA Registrar ID", identifier: "9999" }],
+      vcardArray: ["vcard", [["version", {}, "text", "4.0"], ["fn", {}, "text", "Sample Registrar, Inc."]]],
+      entities: [{
+        objectClassName: "entity", roles: ["abuse"],
+        vcardArray: ["vcard", [["version", {}, "text", "4.0"], ["fn", {}, "text", ""], ["tel", { type: "voice" }, "uri", "tel:+1.5550100"], ["email", {}, "text", "abuse@example-registrar.test"]]]
+      }]
+    }],
+    events: [
+      { eventAction: "registration", eventDate: "2014-03-09T18:22:41Z" },
+      { eventAction: "expiration", eventDate: "2027-03-09T18:22:41Z" },
+      { eventAction: "last changed", eventDate: "2026-02-07T09:14:03Z" },
+      { eventAction: "last update of RDAP database", eventDate: "2026-11-17T08:00:00Z" }
+    ],
+    secureDNS: { delegationSigned: true, dsData: [{ keyTag: 2371, algorithm: 13, digestType: 2, digest: "C988EC423E3880EB8DD8A46FC06BE6B5A8BB2A4E6F6E8F6D0A2D0F8B1C2D3E4F" }] },
+    nameservers: [{ objectClassName: "nameserver", ldhName: "NS1.EXAMPLE-DNS.TEST" }, { objectClassName: "nameserver", ldhName: "NS2.EXAMPLE-DNS.TEST" }]
+  };
+
+  var form = document.getElementById("form");
+  var input = document.getElementById("q");
+  var button = document.getElementById("go");
+  var msg = document.getElementById("msg");
+  var result = document.getElementById("result");
+  var recentBox = document.getElementById("recent");
+  var recent = [];
+  var inFlight = null;
+
+  /* ---------- small helpers ---------- */
+
+  function el(tag, attrs, kids) {
+    var node = document.createElement(tag);
+    if (attrs) Object.keys(attrs).forEach(function (k) {
+      if (k === "class") node.className = attrs[k];
+      else if (k === "text") node.textContent = attrs[k];
+      else node.setAttribute(k, attrs[k]);
+    });
+    (kids || []).forEach(function (kid) {
+      if (kid == null) return;
+      node.appendChild(typeof kid === "string" ? document.createTextNode(kid) : kid);
+    });
+    return node;
+  }
+  function show(node) { result.replaceChildren(node); }
+
+  var dateFmt = new Intl.DateTimeFormat(undefined, { year: "numeric", month: "short", day: "numeric" });
+  var timeFmt = new Intl.DateTimeFormat(undefined, { hour: "numeric", minute: "2-digit" });
+  function parseDate(s) { var d = s ? new Date(s) : null; return d && !isNaN(d) ? d : null; }
+  function plural(n, word) { return n + " " + word + (n === 1 ? "" : "s"); }
+  function distance(a, b) {
+    var days = Math.round(Math.abs(b - a) / 864e5);
+    if (days < 1) return "less than a day";
+    if (days < 60) return plural(days, "day");
+    var months = Math.floor(days / 30.44);
+    if (months < 24) return plural(months, "month");
+    return plural(Math.floor(days / 365.25), "year");
+  }
+
+  /* ---------- input handling ---------- */
+
+  function normalise(raw) {
+    var s = String(raw || "").trim().toLowerCase();
+    if (!s) return { error: "Type a name to check." };
+    s = s.replace(/^[a-z][a-z0-9+.-]*:\/\//, "").split(/[\/?#]/)[0].replace(/:\d+$/, "").replace(/\.$/, "");
+    if (/\s/.test(s)) return { error: "Domain names can’t contain spaces. Try a hyphen instead." };
+    if (s.indexOf(".") === -1) s += ".com";
+    var host;
+    try { host = new URL("http://" + s).hostname; } catch (e) { host = ""; }
+    var labels = host.split(".");
+    if (labels.length < 2) return { error: "That doesn’t look like a domain name. Try something like yourname.com." };
+    var tld = labels[labels.length - 1];
+    var name = labels[labels.length - 2];
+    if (!ENDPOINT[tld]) return { error: "Dotcheck reads the .com and .net registries only. A “." + tld + "” name lives at a different registry." };
+    if (!/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(name)) {
+      return { error: "Use letters, digits and hyphens only, up to 63 characters, with no hyphen at the start or end." };
+    }
+    return { domain: name + "." + tld, tld: tld };
+  }
+
+  function remember(domain, state) {
+    recent = recent.filter(function (r) { return r.domain !== domain; });
+    recent.unshift({ domain: domain, state: state });
+    recent = recent.slice(0, 6);
+    recentBox.replaceChildren(el("span", { text: "Checked this session" }));
+    recent.forEach(function (r) {
+      var b = el("button", { type: "button", title: r.state === "free" ? "Available" : "Registered" }, [el("span", { class: "dot " + r.state }), r.domain]);
+      b.addEventListener("click", function () { input.value = r.domain; lookup(r.domain, ENDPOINT[r.domain.split(".").pop()]); });
+      recentBox.appendChild(b);
+    });
+    recentBox.hidden = false;
+  }
+
+  /* ---------- lookup ---------- */
+
+  function lookup(domain, base) {
+    if (inFlight) inFlight.abort();
+    var ctrl = new AbortController();
+    inFlight = ctrl;
+    var timer = setTimeout(function () { ctrl.abort(); }, 12000);
+    msg.textContent = "";
+    button.disabled = true;
+    button.textContent = "Checking…";
+    show(el("p", { class: "checking" }, [el("span", { class: "dot" }), "Asking the registry about " + domain]));
+
+    fetch(base + encodeURIComponent(domain), { signal: ctrl.signal })
+      .then(function (res) {
+        if (res.status === 404) { remember(domain, "free"); return renderFree(domain); }
+        if (res.status === 429) return renderProblem("The registry is asking for a pause", "Too many lookups came from this connection in a short time. Wait a minute, then check the name again.");
+        if (res.status === 400) return renderProblem("The registry rejected that name", "“" + domain + "” isn’t a valid name at this registry. Check the spelling and try again.");
+        if (!res.ok) return renderProblem("The registry returned an error", "Verisign answered with status " + res.status + ". This is usually temporary, so try again shortly.");
+        return res.json().then(function (data) { remember(domain, "taken"); renderTaken(domain, data, false); });
+      })
+      .catch(function (err) {
+        if (ctrl !== inFlight) return;
+        if (err && err.name === "AbortError") {
+          renderProblem("The registry took too long to answer", "No reply arrived within 12 seconds. Check your connection and try again.");
+        } else {
+          renderProblem("The lookup couldn’t reach the registry", "The request was blocked before it left this page. Previews and sandboxed viewers stop outside requests, so open this file directly in a browser tab. If you already have, check your connection or any content blocker.", true);
+        }
+      })
+      .finally(function () {
+        clearTimeout(timer);
+        if (ctrl === inFlight) { inFlight = null; button.disabled = false; button.textContent = "Check name"; }
+      });
+  }
+
+  /* ---------- rendering ---------- */
+
+  function copyButton(domain) {
+    var b = el("button", { class: "btn btn-quiet", type: "button", text: "Copy name" });
+    b.addEventListener("click", function () {
+      var done = function (label) { b.textContent = label; setTimeout(function () { b.textContent = "Copy name"; }, 1600); };
+      try { navigator.clipboard.writeText(domain).then(function () { done("Copied"); }, function () { done("Copy blocked"); }); }
+      catch (e) { done("Copy blocked"); }
+    });
+    return b;
+  }
+
+  function renderProblem(title, text, offerSample) {
+    var box = el("div", { class: "problem" }, [el("h2", { text: title }), el("p", { text: text })]);
+    if (offerSample) {
+      var b = el("button", { class: "btn btn-quiet", type: "button", text: "Show a sample record" });
+      b.addEventListener("click", function () { renderTaken("sample-record.com", SAMPLE, true); });
+      box.appendChild(b);
+    }
+    show(box);
+  }
+
+  function renderFree(domain) {
+    var tld = domain.split(".").pop();
+    show(el("div", null, [
+      el("span", { class: "verdict-tag free" }, [el("span", { class: "dot free" }), "Available to register"]),
+      el("h2", { class: "verdict-name", text: domain }),
+      el("p", { class: "verdict-text" }, [
+        "The ." + tld + " registry has no registration for this name as of " + timeFmt.format(new Date()) + ". ",
+        el("strong", { text: "It can be taken at any moment" }),
+        ", and a registrar may still price it as a premium name, so confirm at checkout."
+      ]),
+      el("div", { class: "actions" }, [copyButton(domain)])
+    ]));
+  }
+
+  function vcard(entity) {
+    var out = {};
+    var rows = entity && entity.vcardArray && entity.vcardArray[1];
+    (Array.isArray(rows) ? rows : []).forEach(function (r) {
+      var v = Array.isArray(r[3]) ? r[3].join(" ") : r[3];
+      if (typeof v !== "string" || !v) return;
+      if (r[0] === "fn") out.name = v;
+      if (r[0] === "email") out.email = v;
+      if (r[0] === "tel") out.tel = v.replace(/^tel:/, "");
+    });
+    return out;
+  }
+
+  function renderTaken(domain, data, isSample) {
+    var now = new Date();
+    var events = {};
+    (data.events || []).forEach(function (e) { events[e.eventAction] = parseDate(e.eventDate); });
+    var registered = events["registration"];
+    var expires = events["expiration"];
+    var changed = events["last changed"];
+    var dbUpdated = events["last update of RDAP database"];
+    var statuses = (data.status || []).map(function (s) { return String(s).toLowerCase(); });
+
+    var registrar = (data.entities || []).filter(function (e) { return (e.roles || []).indexOf("registrar") !== -1; })[0];
+    var regCard = vcard(registrar);
+    var abuse = registrar && (registrar.entities || []).filter(function (e) { return (e.roles || []).indexOf("abuse") !== -1; })[0];
+    var abuseCard = vcard(abuse);
+    var ianaId = registrar && ((registrar.publicIds || [])[0] || {}).identifier;
+    var related = (data.links || []).filter(function (l) { return l.rel === "related" && /^https:\/\//i.test(l.href || ""); })[0];
+
+    var root = el("div");
+    if (isSample) root.appendChild(el("p", { class: "sample-flag", text: "Sample record with invented values, shown so you can see the layout. This is not a live lookup." }));
+
+    /* verdict */
+    var releasing = statuses.indexOf("pending delete") !== -1 || statuses.indexOf("redemption period") !== -1;
+    var sentence = ["Someone already holds this name"];
+    if (regCard.name) sentence.push(" through ", el("strong", { text: regCard.name }));
+    if (registered) sentence.push(", registered " + distance(registered, now) + " ago");
+    sentence.push(".");
+    if (statuses.indexOf("pending delete") !== -1) sentence.push(" It is scheduled for release, so it may become available within days.");
+    else if (statuses.indexOf("redemption period") !== -1) sentence.push(" It has been deleted and will be released if the previous owner doesn’t restore it.");
+    else if (expires && expires < now) sentence.push(" Its expiration date has passed, so it may be in a renewal grace period.");
+
+    root.appendChild(el("span", { class: "verdict-tag taken" }, [el("span", { class: "dot taken" }), releasing ? "Registered, release pending" : "Already registered"]));
+    root.appendChild(el("h2", { class: "verdict-name", text: String(data.ldhName || domain).toLowerCase() }));
+    root.appendChild(el("p", { class: "verdict-text" }, sentence));
+    var actions = el("div", { class: "actions" }, [copyButton(String(data.ldhName || domain).toLowerCase())]);
+    root.appendChild(actions);
+
+    /* lifecycle */
+    if (registered || expires) {
+      var life = el("div", { class: "life" });
+      var bar = null;
+      if (registered && expires && expires > registered) {
+        var total = expires - registered;
+        var p = Math.max(0, Math.min(100, ((now - registered) / total) * 100));
+        bar = el("div", { class: "life-bar", role: "img", "aria-label": Math.round(p) + "% of the current registration term has passed" }, [
+          el("span", { class: "life-fill" }),
+          changed && changed > registered && changed < expires ? el("span", { class: "life-tick", style: "--t:" + (((changed - registered) / total) * 100).toFixed(2) }) : null,
+          el("span", { class: "life-now-label", text: "Today" }),
+          el("span", { class: "life-now" })
+        ]);
+        life.appendChild(bar);
+        requestAnimationFrame(function () { requestAnimationFrame(function () { bar.style.setProperty("--p", p.toFixed(2)); }); });
+      }
+      var point = function (label, date, rel, warn) {
+        return el("div", null, [
+          el("dt", { text: label }),
+          el("dd", { class: "date", text: date ? dateFmt.format(date) : "Not published" }),
+          rel ? el("dd", { class: "rel" + (warn ? " warn" : ""), text: rel }) : null
+        ]);
+      };
+      var expRel = null, expWarn = false;
+      if (expires) {
+        if (expires < now) { expRel = distance(expires, now) + " ago"; expWarn = true; }
+        else { expRel = "in " + distance(now, expires); expWarn = expires - now < 30 * 864e5; }
+      }
+      life.appendChild(el("dl", { class: "life-points" }, [
+        point("Registered", registered, registered ? distance(registered, now) + " ago" : null),
+        point("Last changed", changed, changed ? distance(changed, now) + " ago" : null),
+        point(expires && expires < now ? "Expired" : "Expires", expires, expRel, expWarn)
+      ]));
+      root.appendChild(life);
+    }
+
+    /* record rows */
+    var record = el("div", { class: "record" });
+    var row = function (title, body) { record.appendChild(el("section", { class: "row" }, [el("h3", { text: title }), el("div", { class: "row-body" }, body)])); };
+
+    var regBody = [el("p", { class: "big", text: regCard.name || "Not published" })];
+    if (ianaId) regBody.push(el("p", { class: "soft", text: "IANA registrar ID " + ianaId }));
+    if (abuseCard.email || abuseCard.tel) {
+      var abuseLine = el("p", null, ["Report abuse: "]);
+      if (abuseCard.email) abuseLine.appendChild(el("a", { href: "mailto:" + abuseCard.email, text: abuseCard.email }));
+      if (abuseCard.email && abuseCard.tel) abuseLine.appendChild(document.createTextNode(" or "));
+      if (abuseCard.tel) abuseLine.appendChild(el("a", { href: "tel:" + abuseCard.tel.replace(/[^+\d]/g, ""), text: abuseCard.tel }));
+      regBody.push(abuseLine);
+    }
+    if (related && !isSample) regBody.push(el("p", null, [el("a", { href: related.href, target: "_blank", rel: "noopener noreferrer", text: "Open the registrar’s own record" })]));
+    row("Registrar", regBody);
+
+    var ns = (data.nameservers || []).map(function (n) { return String(n.ldhName || "").toLowerCase(); }).filter(Boolean);
+    row("Nameservers", ns.length
+      ? [el("ul", { class: "plain-list ns" }, ns.map(function (n) { return el("li", { text: n }); }))]
+      : [el("p", { class: "soft", text: "None attached. The name is registered but points nowhere." })]);
+
+    row("Status", statuses.length
+      ? [el("ul", { class: "plain-list" }, statuses.map(function (s) {
+          return el("li", null, [el("span", { class: "status-name", text: s }), el("span", { class: "soft", text: STATUS[s] || "A registry status code without a plain-language description here." })]);
+        }))]
+      : [el("p", { class: "soft", text: "No status codes published." })]);
+
+    var sec = data.secureDNS || {};
+    var dnssec = [el("p", { class: "big", text: sec.delegationSigned ? "Signed" : "Not signed" }),
+      el("p", { class: "soft", text: sec.delegationSigned ? "DNS answers for this name can be cryptographically verified." : "DNS answers for this name are not cryptographically verified." })];
+    (sec.dsData || []).forEach(function (ds) {
+      dnssec.push(el("p", null, ["Key tag " + ds.keyTag + ", " + (DS_ALG[ds.algorithm] || "algorithm " + ds.algorithm) + ", " + (DS_DIGEST[ds.digestType] || "digest type " + ds.digestType)]));
+      if (ds.digest) dnssec.push(el("p", { class: "digest", text: String(ds.digest) }));
+    });
+    row("DNSSEC", dnssec);
+
+    var kv = el("dl", { class: "kv" });
+    var pair = function (k, v) { if (v) { kv.appendChild(el("dt", { text: k })); kv.appendChild(el("dd", { text: v })); } };
+    pair("Registry handle", data.handle);
+    pair("Registry data as of", dbUpdated ? dateFmt.format(dbUpdated) + ", " + timeFmt.format(dbUpdated) : null);
+    if (kv.children.length) row("Registry record", [kv]);
+
+    root.appendChild(record);
+    root.appendChild(el("details", { class: "raw" }, [el("summary", { text: "Raw registry response" }), el("pre", { text: JSON.stringify(data, null, 2) })]));
+    show(root);
+  }
+
+  /* ---------- wiring ---------- */
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var n = normalise(input.value);
+    if (n.error) { msg.textContent = n.error; input.focus(); return; }
+    input.value = n.domain;
+    lookup(n.domain, ENDPOINT[n.tld]);
+  });
+  input.addEventListener("input", function () { msg.textContent = ""; });
+})();
+</script>
+</body>
+</html>
